@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace ShakerNAudio
 {
      class SineWaveProvider : ISampleProvider
-    {
+     {
         private readonly float[] waveTable;
         private bool seekFreq;
         private double frequency;
@@ -78,7 +78,6 @@ namespace ShakerNAudio
 
             return count;
         }
-
     }
 
 }

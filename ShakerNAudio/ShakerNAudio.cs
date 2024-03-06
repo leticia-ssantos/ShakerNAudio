@@ -3,26 +3,28 @@ using NAudio.CoreAudioApi;
 using System.Windows.Forms;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ShakerNAudio
 {
     public partial class ShakerNAudio : Form
     {
-
         private readonly SineWaveProvider sineProvider;
+        private readonly PanningSampleProvider panProvider;
         private IWavePlayer player;
         private bool playing = false;
+        private float chA, chB;
 
         public ShakerNAudio()
         {
             InitializeComponent();
             ListOutputDevices();
             sineProvider = new SineWaveProvider();
+            panProvider = new PanningSampleProvider(sineProvider);
         }
 
         private void ShakerNAudio_Load(object sender, EventArgs e)
         {
+            panProvider.Pan = 0;
             trackBarFrequency.Value = 120;
             trackBarGain.Value = 100;
         }
@@ -62,7 +64,7 @@ namespace ShakerNAudio
                 waveOutEvent.DesiredLatency = 100;
                 waveOutEvent.DeviceNumber = GetDesiredOutputDeviceId();
                 player = waveOutEvent;
-                player.Init(new SampleToWaveProvider(sineProvider));
+                player.Init(new SampleToWaveProvider(panProvider));
             }
             player.Play();
         }
@@ -95,6 +97,67 @@ namespace ShakerNAudio
                 return comboBoxDevices.SelectedIndex;
             }
             return -1;
+        }
+
+        private void trackBarPan_ValueChanged(object sender, EventArgs e)
+        {
+            panProvider.Pan = ((float)trackBarPan.Value/100);
+        }
+
+        private void trackBarPanChA_ValueChanged(object sender, EventArgs e)
+        {
+            chA = ((float)trackBarPanChA.Value / 100);
+
+            if (chB == 0)
+            {
+                panProvider.Pan = 1;
+            }
+            else if (chA == 0)
+            {
+                panProvider.Pan = -1;
+            }
+            else
+            {
+                panProvider.Pan = chA - chB;
+            }
+
+            if (chA > chB)
+            {
+                sineProvider.Volume = chA;
+            }
+            else
+            {
+                sineProvider.Volume = chB;
+            }
+            Console.WriteLine($"{sineProvider.Volume}\t{chA}\t{chB}\t{panProvider.Pan}");
+        }
+
+        private void trackBarPanChB_ValueChanged(object sender, EventArgs e)
+        {
+            chB = ((float)trackBarPanChB.Value / 100);
+            
+            if(chB == 0)
+            {
+                panProvider.Pan = 1;
+            }
+            else if(chA == 0)
+            {
+                panProvider.Pan = -1;
+            }
+            else
+            {
+                panProvider.Pan = chA - chB;
+            }
+            
+            if (chA > chB)
+            {
+                sineProvider.Volume = chA;
+            }
+            else
+            {
+                sineProvider.Volume = chB;
+            }
+            Console.WriteLine($"{sineProvider.Volume}\t{chA}\t{chB}\t{panProvider.Pan}");
         }
     }
 }
