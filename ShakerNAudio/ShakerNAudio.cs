@@ -62,7 +62,6 @@ namespace ShakerNAudio
                 waveOutEvent.DesiredLatency = 100;
                 waveOutEvent.DeviceNumber = GetDesiredOutputDeviceId();
                 player = waveOutEvent;
-                
                 player.Init(new SampleToWaveProvider(sineProvider));
             }
             player.Play();
